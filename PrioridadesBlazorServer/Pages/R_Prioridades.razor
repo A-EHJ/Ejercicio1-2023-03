@@ -1,0 +1,106 @@
+﻿@using PrioridadesBlazorServer.BLL
+@using PrioridadesBlazorServer.Models
+@page "/prioridad"
+@page "/prioridad/{PrioridadId:int}"
+<PageTitle>Prioridades</PageTitle>
+
+
+@inject PrioridadesBLL prioridadesBLL
+
+<EditForm Model="Prioridad" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator />
+
+    <div class="container">
+        <div class="card shadow-lg">
+            <div class="card-header">
+                <h3 class="en-el-medio">Registrar Prioridades</h3>
+            </div>
+            <div class=card-body>
+
+                @*PrioridadId*@
+                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 col-xl-4">
+                    <label>PrioridadId:</label>
+                    <div class="input-group mb-3">
+                        <InputNumber @bind-Value="Prioridad.PrioridadId" class="form-control" aria-describedby="BotonBuscar" />
+                        <button @onclick="Buscar" class="btn btn-outline-primary" type="button" id="BotonBuscar"><i class="oi oi-magnifying-glass" /></button>
+                    </div>
+                </div>
+                @*Descripcion*@
+                <div class="mb-3">
+                    <label class="form-label" for="Descripcion">Descripción:</label>
+                    <InputText @bind-Value="Prioridad.Descripcion" class="form-control" />
+                    <ValidationMessage For="@(() => Prioridad.Descripcion)" />
+                </div>
+
+                @*Dias Compromiso*@
+                <div class="mb-3">
+                    <label class="form-label">Dias de compromiso:</label>
+                    <InputNumber @bind-Value="Prioridad.DiasCompromiso" class="form-control" />
+                    <ValidationMessage For="@(() => Prioridad.DiasCompromiso)" />
+                </div>
+            </div>
+
+            <div class="card-footer d-flex justify-content-center">
+                <div class="btn-group">
+                    <button type="button" class="btn-nuevo" @onclick="Nuevo">Nuevo</button>
+                    <button type="submit" class="btn-guardar">Guardar</button>
+                    <button type="button" class="btn-eliminar" @onclick="Eliminar">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+@code {
+    [Parameter]
+    public int PrioridadId { get; set; }
+
+    public Prioridades Prioridad { get; set; } = new Prioridades();
+    protected override void OnInitialized()
+    {
+        if(PrioridadId > 0)
+        {
+            this.Prioridad.PrioridadId = PrioridadId;
+            this.Buscar();
+        }
+    }
+
+    void Buscar()
+    {
+        
+        var prioridadEncontrada = prioridadesBLL.Buscar(Prioridad.PrioridadId);
+        
+        if(prioridadEncontrada != null)
+        {
+            this.Prioridad = prioridadEncontrada;
+        }
+        else
+        {
+            this.Nuevo();
+        }
+    }
+
+    void Nuevo()
+    {
+        this.Prioridad= new Prioridades();
+    }
+
+    void Guardar()
+    {
+
+        if (Prioridad.PrioridadId < 0)
+        {
+            return;
+        }
+        if (prioridadesBLL.Guardar(this.Prioridad))
+        {
+            this.Nuevo();
+        }
+    }
+
+    void Eliminar()
+    {
+        prioridadesBLL.Eliminar(Prioridad.PrioridadId);
+        this.Nuevo();
+    }
+}
+
